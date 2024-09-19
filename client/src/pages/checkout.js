@@ -3,20 +3,51 @@ import { loadStripe } from '@stripe/stripe-js';
 require('dotenv').config();
 import { useRouter } from 'next/router';
 import axios from 'axios';
+
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
 const CheckoutPage = () => {
   const [loading, setLoading] = useState(false);
   const [isAllowed, setIsAllowed] = useState(false);
+  const [items, setItems] = useState([]);
+  const [quantities, setQuantities] = useState({});
   const router = useRouter();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/login');
+    } else {
+      setIsAllowed(true);
+      fetchItems(); 
     }
-    setIsAllowed(true);
-  }, [router.isReady, router.query.token, isAllowed, setIsAllowed]);
+  }, [router.isReady, router.query.token, isAllowed]);
+
+  const fetchItems = async () => {
+    const token = localStorage.getItem('token');
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+    try {
+      const res = await axios.get('http://localhost:4000/items', config);
+      const itemsData = res.data.items;
+      setItems(itemsData);
+      const initialQuantities = itemsData.reduce((acc, item) => {
+        acc[item.id] = 0;
+        return acc;
+      }, {});
+      setQuantities(initialQuantities);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleQuantityChange = (id, quantity) => {
+    setQuantities((prevQuantities) => ({
+      ...prevQuantities,
+      [id]: parseInt(quantity, 10),
+    }));
+  };
 
   const handleCheckout = async () => {
     setLoading(true);
@@ -25,12 +56,14 @@ const CheckoutPage = () => {
       headers: { Authorization: `Bearer ${token}` },
     };
     const body = {
-      items: [
-        { id: 1, name: 'Item 1', price: 1000, quantity: 1 },
-        { id: 2, name: 'Item 2', price: 2000, quantity: 2 },
-      ],
+      items: items
+        .filter((item) => quantities[item.id] > 0)
+        .map((item) => ({
+          ...item,
+          quantity: quantities[item.id] || 0,
+        })),
     };
-    try {
+    try {;
       const res = await axios.post(
         'http://localhost:4000/create-checkout-session',
         body,
@@ -40,6 +73,7 @@ const CheckoutPage = () => {
       await stripe.redirectToCheckout({ sessionId: res.data.sessionId });
     } catch (err) {
       console.log(err);
+      setLoading(false);
     }
   };
 
@@ -50,12 +84,34 @@ const CheckoutPage = () => {
       </div>
     );
   }
+
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-2xl font-bold mb-8 text-center">Shopping Cart</h1>
 
-      <div className="bg-gray-50 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Total: $60.00</h2>
+      <div className="bg-gray-50 p-6 rounded-lg shadow-md mb-8">
+        <h2 className="text-xl font-semibold mb-4">Available Items:</h2>
+        <div>
+          {items.length > 0 ? (
+            items.map((item) => (
+              <div key={item.id} className="mb-4 flex items-center">
+                <span className="flex-1">{item.name}</span>
+                <span className="flex-1">${item.price.toFixed(2)}</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={quantities[item.id] || 0}
+                  onChange={(e) =>
+                    handleQuantityChange(item.id, e.target.value)
+                  }
+                  className="w-16 text-center border rounded-md"
+                />
+              </div>
+            ))
+          ) : (
+            <p>No items available.</p>
+          )}
+        </div>
 
         <button
           onClick={handleCheckout}

@@ -49,9 +49,9 @@ app.get(
   }),
   auth.googleSignup
 );
-app.post('/create-checkout-session',  payment.createCheckoutSession);
-app.get("/payment-success", mailInvoice.handlePaymentSuccess );
-
+app.get('/items', payment.getItemsList);
+app.post('/create-checkout-session', payment.createCheckoutSession);
+app.get('/payment-success', mailInvoice.handlePaymentSuccess);
 
 app.listen(process.env.PORT, () => {
   console.log(`Starting the server on ${process.env.PORT}`);
