@@ -2,7 +2,9 @@ const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
-const passport = require('passport');
+const { default: axios } = require('axios');
+
+const GOOGLE_RECAPTCHA_SECRET_KEY = process.env.GOOGLE_RECAPTCHA_SECRET_KEY;
 
 exports.signup = [
   body('firstName').trim().notEmpty().escape(),
@@ -26,6 +28,23 @@ exports.signup = [
         return;
       }
       try {
+        const { recaptcha } = req.body;
+        const response = await axios.post(
+          'https://www.google.com/recaptcha/api/siteverify',
+          null,
+          {
+            params: {
+              secret: GOOGLE_RECAPTCHA_SECRET_KEY,
+              response: recaptcha,
+            },
+          }
+        );
+        const { success } = response.data;
+        if (!success) {
+          return res
+            .status(400)
+            .json({ message: 'reCAPTCHA verification failed' });
+        }
         const user = new User({
           email: req.body.email,
           password: hashedPassword,
@@ -75,9 +94,26 @@ exports.login = [
       res.status(400).json({ errors: errors.array() });
       return;
     }
-    const { email, password } = req.body;
+    const { email, password, recaptcha } = req.body;
 
     try {
+      const response = await axios.post(
+        'https://www.google.com/recaptcha/api/siteverify',
+        null,
+        {
+          params: {
+            secret: GOOGLE_RECAPTCHA_SECRET_KEY,
+            response: recaptcha,
+          },
+        }
+      );
+
+      const { success } = response.data;
+      if (!success) {
+        return res
+          .status(400)
+          .json({ message: 'reCAPTCHA verification failed' });
+      }
       const user = await User.findOne({ email });
       if (!user) {
         return res.status(401).json({ message: 'Invalid credentials' });
