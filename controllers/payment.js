@@ -4,22 +4,30 @@ require('dotenv').config();
 const calculateTotalAmount = (items) => {
   return 100;
 };
-exports.createPaymentIntent = async (req, res) => {
-  const { amount } = req.body;
+
+exports.createCheckoutSession = async (req, res) => {
+  const { items } = req.body;
+  console.log(items);
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: calculateTotalAmount(amount),
-      currency: 'usd',
-      description: 'Testing stripe payment for muta engine assignment',
-      automatic_payment_methods: {
-        enabled: true,
-      },
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: items.map((item) => ({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.name,
+          },
+          unit_amount: item.price,
+        },
+        quantity: item.quantity,
+      })),
+      mode: 'payment',
+      success_url: `http://localhost:3000/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://localhost:3000/payment/failed`,
     });
-    res.send({
-      clientSecret: paymentIntent.client_secret,
-    });
+    console.log(session);
+    res.status(200).json({ sessionId: session.id });
   } catch (err) {
-    console.log(err);
-    res.send(500).send({ error: 'Internal server error' });
+    res.status(500).json({ error: err.message });
   }
 };

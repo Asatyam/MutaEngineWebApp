@@ -2,53 +2,53 @@ import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 require('dotenv').config();
 import { useRouter } from 'next/router';
-
+import axios from 'axios';
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
-
 
 const CheckoutPage = () => {
   const [loading, setLoading] = useState(false);
-  const[isAllowed, setIsAllowed] = useState(false);
+  const [isAllowed, setIsAllowed] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      router.push("/login");
+      router.push('/login');
     }
     setIsAllowed(true);
   }, [router.isReady, router.query.token, isAllowed, setIsAllowed]);
 
   const handleCheckout = async () => {
     setLoading(true);
-
-    const response = await fetch(
-      'http://localhost:4000/create-checkout-session',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: [
-            { id: 1, name: 'Item 1', price: 1000, quantity: 1 },
-            { id: 2, name: 'Item 2', price: 2000, quantity: 2 },
-          ],
-        }),
-      }
-    );
-
-    const res = await response.json();
-    console.log(res);
-    const stripe = await stripePromise;
-    await stripe.redirectToCheckout({ sessionId: res.sessionId });
-    setLoading(false);
+    const token = localStorage.getItem('token');
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+    const body = {
+      items: [
+        { id: 1, name: 'Item 1', price: 1000, quantity: 1 },
+        { id: 2, name: 'Item 2', price: 2000, quantity: 2 },
+      ],
+    };
+    try {
+      const res = await axios.post(
+        'http://localhost:4000/create-checkout-session',
+        body,
+        config
+      );
+      const stripe = await stripePromise;
+      await stripe.redirectToCheckout({ sessionId: res.data.sessionId });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  if (!isAllowed){
-        return (
-          <div className="flex justify-center items-center h-screen bg-gray-50">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
-          </div>
-        );
+  if (!isAllowed) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-50">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+      </div>
+    );
   }
   return (
     <div className="container mx-auto p-8">

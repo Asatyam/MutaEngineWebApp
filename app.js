@@ -6,7 +6,8 @@ const auth = require('./controllers/authentication');
 const passport = require('passport');
 const { setUpPassport } = require('./helpers/passport');
 const { ensureAuthenticated } = require('./helpers/middleware');
-
+const payment = require('./controllers/payment');
+const mailInvoice = require('./controllers/mailInvoice');
 const app = express();
 
 connectDB();
@@ -48,6 +49,9 @@ app.get(
   }),
   auth.googleSignup
 );
+app.post('/create-checkout-session',  payment.createCheckoutSession);
+app.get("/payment-success", mailInvoice.handlePaymentSuccess );
+
 
 app.listen(process.env.PORT, () => {
   console.log(`Starting the server on ${process.env.PORT}`);

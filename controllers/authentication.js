@@ -152,5 +152,5 @@ exports.googleSignup = (req, res) => {
   };
   const token = jwt.sign(payload, process.env.SECRET);
   console.log(token, payload);
-  res.redirect(`http://localhost:3000?${token}`);
+  res.redirect(`http://localhost:3000?token=${token}`);
 };
