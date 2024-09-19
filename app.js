@@ -52,6 +52,8 @@ app.get(
 app.get('/items', payment.getItemsList);
 app.post('/create-checkout-session', payment.createCheckoutSession);
 app.get('/payment-success', mailInvoice.handlePaymentSuccess);
+app.post('/password-reset-request', auth.requestPasswordReset);
+app.post('/password-reset', auth.resetPassword);
 
 app.listen(process.env.PORT, () => {
   console.log(`Starting the server on ${process.env.PORT}`);

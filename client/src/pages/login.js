@@ -86,6 +86,13 @@ function Login() {
                 placeholder="Password"
               />
             </div>
+            <div className="relative justify-start text-sm">
+              <p>
+                <Link href="/resetPassword">
+                  <span className=" text-blue-500">Forgot Password?</span>
+                </Link>
+              </p>
+            </div>
           </div>
 
           <div>
