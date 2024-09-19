@@ -1,20 +1,40 @@
+import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/router";
-
-
-
-
+import { useState } from "react";
+import { configDotenv } from "dotenv";
+configDotenv();
 
 function Login() {
 
+    const initial = {
+        email: "",
+        password: "",
+    }
     const router = useRouter();
+    const [form, setForm] = useState(initial);
+
 
     const handleLogin = (e)=>{
-        console.log(e);
         e.preventDefault();
-        router.push("/");
+        const body = form;
+        const url = `http://localhost:4000/login`;
+        console.log(url)
+        axios.post(url, body)
+        .then((res)=>{
+            console.log(res);
+            router.push("/");
+        }).catch((err)=>{
+            console.log(err)
+        })
     }
-
+    const handleFormChange = (e) =>{
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value,
+        })
+    }
+    
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded shadow-md">
@@ -31,6 +51,8 @@ function Login() {
                 id="email"
                 name="email"
                 type="email"
+                value={form.email}
+                onChange={handleFormChange}
                 autoComplete="email"
                 required
                 className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
@@ -45,6 +67,8 @@ function Login() {
                 id="password"
                 name="password"
                 type="password"
+                value={form.password}
+                onChange={handleFormChange}
                 autoComplete="current-password"
                 required
                 className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
