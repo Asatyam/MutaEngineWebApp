@@ -19,7 +19,7 @@ exports.handlePaymentSuccess = async (req, res) => {
     const invoicePath = generateInvoice(lineItems.data, buyer);
     sendInvoiceEmail(customer_email, invoicePath, customer_name);
 
-    res.status(200).json({ invoiceUrl: invoicePath });
+    res.status(200).json({message: "Successfully mailed the invoice"});
   } catch (err) {
     res.status(500).json({ err: err.message });
   }
