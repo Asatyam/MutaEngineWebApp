@@ -1,6 +1,10 @@
-import Link from "next/link";
+import Link from 'next/link';
 
 export default function Signup() {
+  const handleGoogleSignup = (e) => {
+    window.location.href = 'http://localhost:4000/auth/google';
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded shadow-md">
@@ -111,6 +115,7 @@ export default function Signup() {
           {/* Sign up with Google */}
           <div>
             <button
+              onClick={handleGoogleSignup}
               type="button"
               className="relative flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >

@@ -42,7 +42,7 @@ exports.signup = [
               id: user._id,
               email: user.email,
             };
-            const token = jwt.sign( body , process.env.SECRET);
+            const token = jwt.sign(body, process.env.SECRET);
             return res
               .status(200)
               .json({ message: 'User created', user, token });
@@ -90,7 +90,7 @@ exports.login = [
         id: user._id,
         email: user.email,
       };
-      const token = jwt.sign(payload , process.env.SECRET);
+      const token = jwt.sign(payload, process.env.SECRET);
       return res.status(200).json({ payload, token });
     } catch (err) {
       console.error(err);
@@ -104,6 +104,17 @@ exports.logout = async (req, res) => {
     if (err) {
       return res.status(500).json({ error: 'Internal Server Error' });
     }
-    return res.status(200).json({"message": "Successfully logged out"});
+    return res.status(200).json({ message: 'Successfully logged out' });
   });
+};
+
+exports.googleSignup = (req, res) => {
+  const user = req.user;
+  const payload = {
+    id: user.id,
+    email: user.email,
+  };
+  const token = jwt.sign(payload, process.env.SECRET);
+  console.log(token, payload);
+  res.redirect(`http://localhost:3000?${token}`);
 };

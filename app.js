@@ -30,9 +30,24 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-app.post('/signup', auth.signup);
-app.post('/login', auth.login);
-app.post('/logout', ensureAuthenticated,auth.logout);
+app.post('/auth/signup', auth.signup);
+app.post('/auth/login', auth.login);
+app.post('/auth/logout', ensureAuthenticated, auth.logout);
+app.get(
+  '/auth/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email', 'openid'],
+    session: false,
+  })
+);
+app.get(
+  '/auth/google/callback',
+  passport.authenticate('google', {
+    session: false,
+    failureRedirect: '/login',
+  }),
+  auth.googleSignup
+);
 
 app.listen(process.env.PORT, () => {
   console.log(`Starting the server on ${process.env.PORT}`);
