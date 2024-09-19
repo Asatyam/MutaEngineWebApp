@@ -1,44 +1,50 @@
-import axios from "axios";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { useState } from "react";
-import { configDotenv } from "dotenv";
+import axios from 'axios';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { configDotenv } from 'dotenv';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+
 configDotenv();
 
 function Login() {
+  const { executeRecaptcha } = useGoogleReCaptcha('login');
 
-    const initial = {
-        email: "",
-        password: "",
-    }
-    const router = useRouter();
-    const [form, setForm] = useState(initial);
+  const initial = {
+    email: '',
+    password: '',
+  };
+  const router = useRouter();
+  const [form, setForm] = useState(initial);
 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const token = await executeRecaptcha('login');
+    console.log(token);
+    const body = {
+      ...form,
+      recaptcha: token,
+    };
+    const url = `http://localhost:4000/auth/login`;
+    axios
+      .post(url, body)
+      .then((res) => {
+        router.push('/');
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+  const handleFormChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-    const handleLogin = (e)=>{
-        e.preventDefault();
-        const body = form;
-        const url = `http://localhost:4000/login`;
-        console.log(url)
-        axios.post(url, body)
-        .then((res)=>{
-            console.log(res);
-            router.push("/");
-        }).catch((err)=>{
-            console.log(err)
-        })
-    }
-    const handleFormChange = (e) =>{
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value,
-        })
-    }
-
-    const handleGoogleLogin = (e)=>{
-        window.location.href = 'http://localhost:4000/auth/google';
-    }
-    
+  const handleGoogleLogin = (e) => {
+    window.location.href = 'http://localhost:4000/auth/google';
+  };
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded shadow-md">
@@ -97,6 +103,7 @@ function Login() {
               </p>
             </div>
           </div>
+
           <div className="relative flex justify-center">
             <span className="px-2 text-sm text-gray-500">or</span>
           </div>

@@ -1,6 +1,51 @@
 import Link from 'next/link';
+import {useGoogleReCaptcha} from "react-google-recaptcha-v3";
+import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 export default function Signup() {
+
+      const { executeRecaptcha } = useGoogleReCaptcha('signup');
+      const [confirm, setConfirm] = useState('');
+      const initial = {
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: ''
+
+      };
+      const router = useRouter();
+      const [form, setForm] = useState(initial);
+
+      const handleSignup = async (e) => {
+        e.preventDefault();
+        const token = await executeRecaptcha('login');
+        console.log(token);
+        const body = {
+          ...form,
+          recaptcha: token,
+        };
+        const url = `http://localhost:4000/auth/signup`;
+        axios
+          .post(url, body)
+          .then((res) => {
+            router.push('/');
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      };
+      const handleFormChange = (e) => {
+        setForm({
+          ...form,
+          [e.target.name]: e.target.value,
+        });
+      };
+
+      const handleConfirmChange = (e)=>{
+        setConfirm(e.target.value);
+      }
+
   const handleGoogleSignup = (e) => {
     window.location.href = 'http://localhost:4000/auth/google';
   };
@@ -11,7 +56,7 @@ export default function Signup() {
         <h2 className="text-3xl font-extrabold text-center text-gray-900">
           Sign up
         </h2>
-        <form className="mt-8 space-y-6">
+        <form className="mt-8 space-y-6" onSubmit={handleSignup}>
           <div className="rounded-md shadow-sm space-y-4">
             {/* First Name */}
             <div>
@@ -19,9 +64,11 @@ export default function Signup() {
                 First Name
               </label>
               <input
-                id="first-name"
-                name="first-name"
+                id="firstName"
+                name="firstName"
                 type="text"
+                value={form.firstName}
+                onChange={handleFormChange}
                 required
                 className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="First Name"
@@ -34,9 +81,11 @@ export default function Signup() {
                 Last Name
               </label>
               <input
-                id="last-name"
-                name="last-name"
+                id="lastName"
+                name="lastName"
                 type="text"
+                value={form.lastName}
+                onChange={handleFormChange}
                 required
                 className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Last Name"
@@ -52,6 +101,8 @@ export default function Signup() {
                 id="email"
                 name="email"
                 type="email"
+                value={form.email}
+                onChange={handleFormChange}
                 autoComplete="email"
                 required
                 className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
@@ -68,6 +119,8 @@ export default function Signup() {
                 id="password"
                 name="password"
                 type="password"
+                value={form.password}
+                onChange={handleFormChange}
                 autoComplete="new-password"
                 required
                 className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
@@ -81,8 +134,10 @@ export default function Signup() {
                 Confirm Password
               </label>
               <input
-                id="confirm-password"
-                name="confirm-password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={confirm}
+                onChange={handleConfirmChange}
                 type="password"
                 required
                 className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
