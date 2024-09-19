@@ -20,7 +20,6 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     const token = await executeRecaptcha('login');
-    console.log(token);
     const body = {
       ...form,
       recaptcha: token,
@@ -29,6 +28,8 @@ function Login() {
     axios
       .post(url, body)
       .then((res) => {
+        const token = res.data.token;
+        localStorage.setItem('token', token);
         router.push('/');
       })
       .catch((err) => {

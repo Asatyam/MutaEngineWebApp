@@ -1,10 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 require('dotenv').config();
+import { useRouter } from 'next/router';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+
+
 const CheckoutPage = () => {
   const [loading, setLoading] = useState(false);
+  const[isAllowed, setIsAllowed] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push("/login");
+    }
+    setIsAllowed(true);
+  }, [router.isReady, router.query.token, isAllowed, setIsAllowed]);
 
   const handleCheckout = async () => {
     setLoading(true);
@@ -30,6 +43,13 @@ const CheckoutPage = () => {
     setLoading(false);
   };
 
+  if (!isAllowed){
+        return (
+          <div className="flex justify-center items-center h-screen bg-gray-50">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+          </div>
+        );
+  }
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-2xl font-bold mb-8 text-center">Shopping Cart</h1>
