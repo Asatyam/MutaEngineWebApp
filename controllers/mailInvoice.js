@@ -11,11 +11,9 @@ exports.handlePaymentSuccess = async (req, res) => {
     const session = await stripe.checkout.sessions.retrieve(session_id);
     const lineItems = await stripe.checkout.sessions.listLineItems(session_id);
 
-    console.log(session);
     const customer_email = session.customer_details.email;
     const customer_name = session.customer_details.name;
     const buyer = { email: customer_email };
-    console.log(lineItems);
     const invoicePath = generateInvoice(lineItems.data, buyer);
     sendInvoiceEmail(customer_email, invoicePath, customer_name);
 

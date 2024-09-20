@@ -158,7 +158,6 @@ exports.googleSignup = (req, res) => {
     email: user.email,
   };
   const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '2h' });
-  console.log(token, payload);
   res.redirect(
     `${process.env.FRONTEND_URL}?token=${token}&email=${user.email}`
   );
@@ -205,14 +204,11 @@ exports.resetPassword = async (req, res) => {
   const { resetToken, newPassword } = req.body;
   try {
     const resetTokenEntry = await PasswordReset.findOne({ resetToken });
-    console.log(resetTokenEntry, resetToken);
     if (!resetTokenEntry || resetTokenEntry.expiresAt < Date.now()) {
-      console.log('here1');
       return res.status(400).json({ message: 'Invalid or Expired token' });
     }
     const user = await User.findById(resetTokenEntry.userId);
     if (!user) {
-      console.log('here2');
       return res.status(400).json({ message: 'User not found' });
     }
     const hashedPassword = await bcryptjs.hash(newPassword, 10);
