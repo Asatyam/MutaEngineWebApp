@@ -16,9 +16,13 @@ function Login() {
   };
   const router = useRouter();
   const [form, setForm] = useState(initial);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     const token = await executeRecaptcha('login');
     const body = {
       ...form,
@@ -29,11 +33,15 @@ function Login() {
       .post(url, body)
       .then((res) => {
         const token = res.data.token;
+        const email = res.data.email
         localStorage.setItem('token', token);
+        localStorage.setItem('email', email);
+        setLoading(false);
         router.push('/');
       })
       .catch((err) => {
-        console.log(err);
+        setLoading(false);
+        setError('Invalid Credentials. Please Try Again');
       });
   };
   const handleFormChange = (e) => {
@@ -52,6 +60,7 @@ function Login() {
         <h2 className="text-3xl font-extrabold text-center text-gray-900">
           Sign in
         </h2>
+        {error && <p className="text-red-500 text-center">{error}</p>}
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           <div className="rounded-md shadow-sm">
             <div className="mb-4">
@@ -100,7 +109,7 @@ function Login() {
               type="submit"
               className="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md group hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Sign in
+              {loading ? 'Loading...' : 'Sign in'}
             </button>
             <div className="relative justify-start text-sm">
               <p>

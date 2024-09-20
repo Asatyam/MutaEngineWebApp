@@ -6,16 +6,21 @@ import { useRouter } from 'next/router';
 const PasswordResetRequest = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:4000/password-reset-request', { email });
-      router.push("/password-reset-success");
+      setLoading(true);
+      await axios.post('http://localhost:4000/password-reset-request', {
+        email,
+      });
+      setLoading(false);
+      router.push('/password-reset-success');
       setMessage('Password reset email sent');
     } catch (error) {
-        console.log(error);
+      console.log(error);
       setMessage('Error sending password reset email');
     }
   };
@@ -36,7 +41,7 @@ const PasswordResetRequest = () => {
               name="email"
               type="email"
               value={email}
-              onChange = {(e)=>setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
               required
               className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
@@ -47,7 +52,7 @@ const PasswordResetRequest = () => {
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Request Password Reset
+            {loading ? 'Loading...' : 'Request Password Reset'}
           </button>
         </form>
         {message && (

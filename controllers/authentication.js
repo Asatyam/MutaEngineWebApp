@@ -65,9 +65,11 @@ exports.signup = [
               email: user.email,
             };
             const token = jwt.sign(body, process.env.SECRET);
-            return res
-              .status(200)
-              .json({ message: 'User created', user, token });
+            return res.status(200).json({
+              message: 'User created',
+              email: user.email,
+              token,
+            });
           }
         });
       } catch (err) {
@@ -130,7 +132,9 @@ exports.login = [
         email: user.email,
       };
       const token = jwt.sign(payload, process.env.SECRET);
-      return res.status(200).json({ payload, token });
+      return res
+        .status(200)
+        .json({ payload, token, email: user.email });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: 'Something went wrong' });
@@ -155,7 +159,7 @@ exports.googleSignup = (req, res) => {
   };
   const token = jwt.sign(payload, process.env.SECRET);
   console.log(token, payload);
-  res.redirect(`http://localhost:3000?token=${token}`);
+  res.redirect(`http://localhost:3000?token=${token}&email=${user.email}`);
 };
 
 exports.requestPasswordReset = async (req, res) => {
@@ -183,9 +187,9 @@ exports.requestPasswordReset = async (req, res) => {
     });
     const mailOptions = {
       to: email,
-      from: 'no-reply@satyamagrawal.com',
+      from: `Satyam Agrawal <${process.env.ADMIN_EMAIL}>`,
       subject: 'Password Reset Request for Muta Engine Web App',
-      text: `You requested a password reset. Click the link to reset your password: http://localhost:3000/password-reset?resetToken=${resetToken}`,
+      text: `Hi, \n You requested a password reset. Click the link to reset your password: http://localhost:3000/password-reset?resetToken=${resetToken}`,
     };
     await transporter.sendMail(mailOptions);
 
@@ -201,12 +205,12 @@ exports.resetPassword = async (req, res) => {
     const resetTokenEntry = await PasswordReset.findOne({ resetToken });
     console.log(resetTokenEntry, resetToken);
     if (!resetTokenEntry || resetTokenEntry.expiresAt < Date.now()) {
-      console.log("here1")
+      console.log('here1');
       return res.status(400).json({ message: 'Invalid or Expired token' });
     }
     const user = await User.findById(resetTokenEntry.userId);
     if (!user) {
-      console.log("here2");
+      console.log('here2');
       return res.status(400).json({ message: 'User not found' });
     }
     const hashedPassword = await bcryptjs.hash(newPassword, 10);

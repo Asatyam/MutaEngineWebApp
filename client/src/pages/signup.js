@@ -2,11 +2,14 @@ import Link from 'next/link';
 import {useGoogleReCaptcha} from "react-google-recaptcha-v3";
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import axios from 'axios';
 
 export default function Signup() {
 
       const { executeRecaptcha } = useGoogleReCaptcha('signup');
       const [confirm, setConfirm] = useState('');
+      const [error, setError] = useState('');
+
       const initial = {
         email: '',
         password: '',
@@ -19,6 +22,11 @@ export default function Signup() {
 
       const handleSignup = async (e) => {
         e.preventDefault();
+        setError('');
+        if (form.password != confirm){
+          setError('Passwords do not match');
+          return;
+        }
         const token = await executeRecaptcha('login');
         console.log(token);
         const body = {
@@ -30,11 +38,13 @@ export default function Signup() {
           .post(url, body)
           .then((res) => {
             const token = res.data.token;
+            const email = res.data.email
             localStorage.setItem('token', token);
+            localStorage.setItem('email', email);
             router.push('/');
           })
           .catch((err) => {
-            console.log(err);
+            setError('Something went wrong');
           });
       };
       const handleFormChange = (e) => {
@@ -58,9 +68,9 @@ export default function Signup() {
         <h2 className="text-3xl font-extrabold text-center text-gray-900">
           Sign up
         </h2>
+        {error && <p className="text-red-500 text-center">{error}</p>}
         <form className="mt-8 space-y-6" onSubmit={handleSignup}>
           <div className="rounded-md shadow-sm space-y-4">
-            {/* First Name */}
             <div>
               <label htmlFor="first-name" className="sr-only">
                 First Name
@@ -77,7 +87,6 @@ export default function Signup() {
               />
             </div>
 
-            {/* Last Name */}
             <div>
               <label htmlFor="last-name" className="sr-only">
                 Last Name
@@ -94,7 +103,6 @@ export default function Signup() {
               />
             </div>
 
-            {/* Email */}
             <div>
               <label htmlFor="email" className="sr-only">
                 Email address
@@ -112,7 +120,6 @@ export default function Signup() {
               />
             </div>
 
-            {/* Password */}
             <div>
               <label htmlFor="password" className="sr-only">
                 Password
@@ -130,7 +137,6 @@ export default function Signup() {
               />
             </div>
 
-            {/* Confirm Password */}
             <div>
               <label htmlFor="confirm-password" className="sr-only">
                 Confirm Password
@@ -169,7 +175,6 @@ export default function Signup() {
             <span className="px-2 text-sm text-gray-500">or</span>
           </div>
 
-          {/* Sign up with Google */}
           <div>
             <button
               onClick={handleGoogleSignup}
