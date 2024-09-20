@@ -5,7 +5,7 @@ const cors = require('cors');
 const auth = require('./controllers/authentication');
 const passport = require('passport');
 const { setUpPassport } = require('./helpers/passport');
-const { ensureAuthenticated } = require('./helpers/middleware');
+const { ensureAuthenticated, logging, trackApiUsage } = require('./helpers/middleware');
 const payment = require('./controllers/payment');
 const mailInvoice = require('./controllers/mailInvoice');
 const app = express();
@@ -15,6 +15,9 @@ connectDB();
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(logging);
+app.use(trackApiUsage)
 
 app.use(
   session({
