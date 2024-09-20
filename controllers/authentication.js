@@ -64,7 +64,7 @@ exports.signup = [
               id: user._id,
               email: user.email,
             };
-            const token = jwt.sign(body, process.env.SECRET);
+            const token = jwt.sign(body, process.env.SECRET, {expiresIn: '2h'});
             return res.status(200).json({
               message: 'User created',
               email: user.email,
@@ -131,7 +131,7 @@ exports.login = [
         id: user._id,
         email: user.email,
       };
-      const token = jwt.sign(payload, process.env.SECRET);
+      const token = jwt.sign(payload, process.env.SECRET, {expiresIn: '2h'},);
       return res
         .status(200)
         .json({ payload, token, email: user.email });
@@ -157,7 +157,7 @@ exports.googleSignup = (req, res) => {
     id: user.id,
     email: user.email,
   };
-  const token = jwt.sign(payload, process.env.SECRET);
+  const token = jwt.sign(payload, process.env.SECRET, {expiresIn: '2h'});
   console.log(token, payload);
   res.redirect(`http://localhost:3000?token=${token}&email=${user.email}`);
 };

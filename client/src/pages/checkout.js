@@ -19,7 +19,7 @@ const CheckoutPage = () => {
       router.push('/login');
     } else {
       setIsAllowed(true);
-      fetchItems(); 
+      fetchItems();
     }
   }, [router.isReady, router.query.token, isAllowed]);
 
@@ -63,7 +63,7 @@ const CheckoutPage = () => {
           quantity: quantities[item.id] || 0,
         })),
     };
-    try {;
+    try {
       const res = await axios.post(
         'http://localhost:4000/create-checkout-session',
         body,
@@ -72,7 +72,12 @@ const CheckoutPage = () => {
       const stripe = await stripePromise;
       await stripe.redirectToCheckout({ sessionId: res.data.sessionId });
     } catch (err) {
-      console.log(err);
+      if (err.response) {
+        if (err.response.status == 401) {
+          localStorage.clear();
+          router.push('/login');
+        }
+      }
       setLoading(false);
     }
   };

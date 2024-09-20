@@ -32,11 +32,22 @@ export default function Home() {
     const config = {
       headers: { Authorization: `Bearer ${token}` },
     };
-    axios.post('http://localhost:4000/auth/logout', config).catch(console.log);
-    localStorage.clear();
-    setToken('');
-    setEmail('');
-    router.push('/');
+    axios
+      .post('http://localhost:4000/auth/logout', config)
+      .then((res) => {
+        localStorage.clear();
+        setToken('');
+        setEmail('');
+        router.push('/');
+      })
+      .catch((err) => {
+        if (err.response) {
+          if (err.response.status == 401) {
+            localStorage.clear();
+            router.push('/login');
+          }
+        }
+      });
   };
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
