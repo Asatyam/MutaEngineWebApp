@@ -32,7 +32,7 @@ const ResetPasswordForm = () => {
       setSuccess('Password has been reset successfully');
       setTimeout(() => {
         router.push('/login');
-      }, 5000);
+      }, 3000);
     } catch (err) {
       setError('Error resetting password');
     } finally {

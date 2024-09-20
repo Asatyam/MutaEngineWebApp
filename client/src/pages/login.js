@@ -88,7 +88,7 @@ function Login() {
             </div>
             <div className="relative justify-start text-sm">
               <p>
-                <Link href="/resetPassword">
+                <Link href="/password-reset-request">
                   <span className=" text-blue-500">Forgot Password?</span>
                 </Link>
               </p>

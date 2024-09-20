@@ -1,15 +1,18 @@
 // pages/password-reset-request.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 
 const PasswordResetRequest = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:4000/password-reset-request', { email });
+      router.push("/password-reset-success");
       setMessage('Password reset email sent');
     } catch (error) {
         console.log(error);

@@ -50,7 +50,7 @@ app.get(
   auth.googleSignup
 );
 app.get('/items', payment.getItemsList);
-app.post('/create-checkout-session', payment.createCheckoutSession);
+app.post('/create-checkout-session', ensureAuthenticated, payment.createCheckoutSession);
 app.get('/payment-success', mailInvoice.handlePaymentSuccess);
 app.post('/password-reset-request', auth.requestPasswordReset);
 app.post('/password-reset', auth.resetPassword);
