@@ -1,65 +1,63 @@
 import Link from 'next/link';
-import {useGoogleReCaptcha} from "react-google-recaptcha-v3";
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import axios from 'axios';
 
 export default function Signup() {
+  const { executeRecaptcha } = useGoogleReCaptcha('signup');
+  const [confirm, setConfirm] = useState('');
+  const [error, setError] = useState('');
 
-      const { executeRecaptcha } = useGoogleReCaptcha('signup');
-      const [confirm, setConfirm] = useState('');
-      const [error, setError] = useState('');
+  const initial = {
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+  };
+  const router = useRouter();
+  const [form, setForm] = useState(initial);
 
-      const initial = {
-        email: '',
-        password: '',
-        firstName: '',
-        lastName: ''
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (form.password != confirm) {
+      setError('Passwords do not match');
+      return;
+    }
+    const token = await executeRecaptcha('login');
+    console.log(token);
+    const body = {
+      ...form,
+      recaptcha: token,
+    };
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signup`;
+    axios
+      .post(url, body)
+      .then((res) => {
+        const token = res.data.token;
+        const email = res.data.email;
+        localStorage.setItem('token', token);
+        localStorage.setItem('email', email);
+        router.push('/');
+      })
+      .catch((err) => {
+        setError('Something went wrong');
+      });
+  };
+  const handleFormChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-      };
-      const router = useRouter();
-      const [form, setForm] = useState(initial);
-
-      const handleSignup = async (e) => {
-        e.preventDefault();
-        setError('');
-        if (form.password != confirm){
-          setError('Passwords do not match');
-          return;
-        }
-        const token = await executeRecaptcha('login');
-        console.log(token);
-        const body = {
-          ...form,
-          recaptcha: token,
-        };
-        const url = `http://localhost:4000/auth/signup`;
-        axios
-          .post(url, body)
-          .then((res) => {
-            const token = res.data.token;
-            const email = res.data.email
-            localStorage.setItem('token', token);
-            localStorage.setItem('email', email);
-            router.push('/');
-          })
-          .catch((err) => {
-            setError('Something went wrong');
-          });
-      };
-      const handleFormChange = (e) => {
-        setForm({
-          ...form,
-          [e.target.name]: e.target.value,
-        });
-      };
-
-      const handleConfirmChange = (e)=>{
-        setConfirm(e.target.value);
-      }
+  const handleConfirmChange = (e) => {
+    setConfirm(e.target.value);
+  };
 
   const handleGoogleSignup = (e) => {
-    window.location.href = 'http://localhost:4000/auth/google';
+    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`;
   };
 
   return (

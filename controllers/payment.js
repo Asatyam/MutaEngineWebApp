@@ -22,13 +22,13 @@ exports.createCheckoutSession = async (req, res) => {
           product_data: {
             name: item.name,
           },
-          unit_amount:itemsInfo[item.id].price * 100,
+          unit_amount: itemsInfo[item.id].price * 100,
         },
         quantity: item.quantity,
       })),
       mode: 'payment',
-      success_url: `http://localhost:3000/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://localhost:3000/payment/failed`,
+      success_url: `${process.env.FRONTEND_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/payment/failed`,
     });
     res.status(200).json({ sessionId: session.id });
   } catch (err) {

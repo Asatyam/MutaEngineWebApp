@@ -24,10 +24,13 @@ const ResetPasswordForm = () => {
 
     try {
       const { resetToken } = router.query;
-      const res = await axios.post(`http://localhost:4000/password-reset`, {
-        newPassword,
-        resetToken,
-      });
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/password-reset`,
+        {
+          newPassword,
+          resetToken,
+        }
+      );
       console.log(res);
       setSuccess('Password has been reset successfully');
       setTimeout(() => {

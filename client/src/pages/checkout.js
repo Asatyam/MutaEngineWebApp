@@ -29,7 +29,10 @@ const CheckoutPage = () => {
       headers: { Authorization: `Bearer ${token}` },
     };
     try {
-      const res = await axios.get('http://localhost:4000/items', config);
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/items`,
+        config
+      );
       const itemsData = res.data.items;
       setItems(itemsData);
       const initialQuantities = itemsData.reduce((acc, item) => {
@@ -65,7 +68,7 @@ const CheckoutPage = () => {
     };
     try {
       const res = await axios.post(
-        'http://localhost:4000/create-checkout-session',
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/create-checkout-session`,
         body,
         config
       );

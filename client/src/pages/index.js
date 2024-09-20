@@ -33,7 +33,7 @@ export default function Home() {
       headers: { Authorization: `Bearer ${token}` },
     };
     axios
-      .post('http://localhost:4000/auth/logout', config)
+      .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout`, config)
       .then((res) => {
         localStorage.clear();
         setToken('');

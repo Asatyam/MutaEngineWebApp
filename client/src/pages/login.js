@@ -28,12 +28,12 @@ function Login() {
       ...form,
       recaptcha: token,
     };
-    const url = `http://localhost:4000/auth/login`;
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`;
     axios
       .post(url, body)
       .then((res) => {
         const token = res.data.token;
-        const email = res.data.email
+        const email = res.data.email;
         localStorage.setItem('token', token);
         localStorage.setItem('email', email);
         setLoading(false);
@@ -52,7 +52,7 @@ function Login() {
   };
 
   const handleGoogleLogin = (e) => {
-    window.location.href = 'http://localhost:4000/auth/google';
+    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`;
   };
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

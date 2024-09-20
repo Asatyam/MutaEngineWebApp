@@ -13,9 +13,12 @@ const PasswordResetRequest = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      await axios.post('http://localhost:4000/password-reset-request', {
-        email,
-      });
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/password-reset-request`,
+        {
+          email,
+        }
+      );
       setLoading(false);
       router.push('/password-reset-success');
       setMessage('Password reset email sent');

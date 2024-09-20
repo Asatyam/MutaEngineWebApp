@@ -15,8 +15,9 @@ const Success = () => {
   const handleInvoiceGeneration = async (session_id) => {
     try {
       const res = await axios.get(
-        `http://localhost:4000/payment-success?session_id=${session_id}`);
-      console.log(res.data)
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/payment-success?session_id=${session_id}`
+      );
+      console.log(res.data);
     } catch (err) {
       console.error('Error generating invoice: ', err);
     }
