@@ -71,7 +71,7 @@ const sendInvoiceEmail = (email, invoicePath, buyerName) => {
   });
 
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: `Satyam Agrawal <${process.env.EMAIL_USER}>`,
     to: email,
     subject: `Invoice for your purchase, ${buyerName}`,
     text: `Dear ${buyerName},\n\nThank you for your purchase! Please find the attached invoice.\n\nBest Regards, Satyam Agrawal`,
